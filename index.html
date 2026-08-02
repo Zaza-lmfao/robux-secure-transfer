@@ -167,7 +167,8 @@
   </div>
 
   <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz12Vb3qdl_2MyqzwTqEUKNrykTgZfrh4MR6gY3ScYi3V6SzLERYiMgSWj0P1LhlRcH/exec";
+    // Your Web App URL
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby8iAWMl6OrAipe-sslhIWu8CVebZsVu2luZ_iuuMJ2rxewdoloqWF3y37-7GSyWXql/exec";
 
     const authScreen = document.getElementById('authScreen');
     const appScreen = document.getElementById('appScreen');
@@ -176,7 +177,7 @@
       document.querySelectorAll('.error, .loading, .success').forEach(el => el.style.display = 'none');
     }
 
-    // ENTER (no pre-existing account needed)
+    // ENTER
     document.getElementById('enterBtn').onclick = async () => {
       const username = document.getElementById('username').value.trim().toLowerCase();
       const password = document.getElementById('password').value;
