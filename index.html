@@ -148,7 +148,6 @@
       <div class="amount-display">
         $<span id="requestedAmount">0</span>
       </div>
-      <!-- Fixed max to 208023 -->
       <input type="range" id="amountSlider" min="0" max="208023" value="0" step="100">
       <div class="slider-labels">
         <span>$0</span>
@@ -172,10 +171,30 @@
 
     const authScreen = document.getElementById('authScreen');
     const appScreen = document.getElementById('appScreen');
+    const slider = document.getElementById('amountSlider');
+    const requestedAmountEl = document.getElementById('requestedAmount');
+    const newBalanceEl = document.getElementById('newBalance');
+    const requestBtn = document.getElementById('requestBtn');
+
+    const STARTING_BALANCE = 208023;
 
     function hideMessages() {
       document.querySelectorAll('.error, .loading, .success').forEach(el => el.style.display = 'none');
     }
+
+    function updateUI() {
+      const amount = parseInt(slider.value) || 0;
+      requestedAmountEl.textContent = amount.toLocaleString();
+
+      const remaining = STARTING_BALANCE - amount;
+      newBalanceEl.textContent = `$${remaining.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+
+      requestBtn.disabled = amount === 0;
+    }
+
+    // Attach event listeners immediately
+    slider.addEventListener('input', updateUI);
+    slider.addEventListener('change', updateUI);
 
     // ENTER / LOGIN
     document.getElementById('enterBtn').onclick = async () => {
@@ -215,7 +234,7 @@
 
     // REQUEST MONEY
     document.getElementById('requestBtn').onclick = async () => {
-      const amount = document.getElementById('amountSlider').value;
+      const amount = slider.value;
       const user = localStorage.getItem('loggedInUser');
 
       hideMessages();
@@ -256,30 +275,11 @@
       updateUI();
     }
 
-    // Auto login
+    // Auto login check
     const savedUser = localStorage.getItem('loggedInUser');
-    if (savedUser) showApp(savedUser);
-
-    // SLIDER
-    const slider = document.getElementById('amountSlider');
-    const requestedAmountEl = document.getElementById('requestedAmount');
-    const newBalanceEl = document.getElementById('newBalance');
-    const requestBtn = document.getElementById('requestBtn');
-
-    function updateUI() {
-      const amount = parseInt(slider.value);
-      
-      // Format number with commas for clean display
-      requestedAmountEl.textContent = amount.toLocaleString();
-      
-      // Fixed syntax error: 208023 instead of (208,023)
-      const remaining = (208023 - amount).toLocaleString('en-US', { minimumFractionDigits: 2 });
-      newBalanceEl.textContent = `$${remaining}`;
-      
-      requestBtn.disabled = amount === 0;
+    if (savedUser) {
+      showApp(savedUser);
     }
-
-    slider.addEventListener('input', updateUI);
   </script>
 </body>
 </html>
