@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>League Pay</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .container {
+      background: #1e293b;
+      border-radius: 20px;
+      padding: 32px 24px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+    h1 { font-size: 1.6rem; margin-bottom: 4px; }
+    .subtitle { color: #94a3b8; margin-bottom: 24px; font-size: 0.95rem; }
+    input {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 14px;
+      border-radius: 10px;
+      border: none;
+      background: #0f172a;
+      color: #f1f5f9;
+      font-size: 1rem;
+    }
+    input::placeholder { color: #64748b; }
+    .error { color: #f87171; font-size: 0.9rem; margin-bottom: 12px; display: none; }
+    .success { color: #4ade80; font-size: 0.9rem; margin-bottom: 12px; display: none; }
+    .loading { color: #94a3b8; font-size: 0.9rem; margin-bottom: 12px; display: none; }
+    button {
+      width: 100%;
+      padding: 16px;
+      background: #38bdf8;
+      color: #0f172a;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    button:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
+    button.secondary {
+      background: transparent;
+      color: #94a3b8;
+      border: 1px solid #334155;
+      font-size: 0.95rem;
+      padding: 12px;
+    }
+    .hidden { display: none; }
+    .balance-card, .preview-card {
+      background: #0f172a;
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    .label { font-size: 0.85rem; color: #94a3b8; margin-bottom: 6px; }
+    .balance { font-size: 1.9rem; font-weight: 700; color: #38bdf8; }
+    .preview { color: #4ade80; }
+    .slider-section { margin-bottom: 28px; }
+    .slider-section label { display: block; margin-bottom: 12px; font-weight: 500; }
+    .amount-display {
+      text-align: center;
+      font-size: 2.4rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: #fbbf24;
+    }
+    input[type="range"] {
+      width: 100%;
+      height: 8px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: #334155;
+      border-radius: 8px;
+      outline: none;
+      margin-bottom: 0;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 26px;
+      height: 26px;
+      background: #38bdf8;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    .slider-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: #64748b;
+      margin-top: 8px;
+    }
+    .user-info {
+      text-align: center;
+      color: #94a3b8;
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+    }
+    .logout {
+      background: transparent;
+      color: #94a3b8;
+      font-size: 0.9rem;
+      margin-top: 8px;
+      padding: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container" id="authScreen">
+    <h1>League Pay</h1>
+    <p class="subtitle" id="authSubtitle">Log in to your account</p>
+
+    <div id="loginForm">
+      <input type="text" id="loginUsername" placeholder="Username">
+      <input type="password" id="loginPassword" placeholder="Password">
+      <p class="error" id="loginError"></p>
+      <p class="loading" id="loginLoading">Logging in...</p>
+      <button id="loginBtn">Log In</button>
+      <button class="secondary" id="showRegisterBtn">Create new account</button>
+    </div>
+
+    <div id="registerForm" class="hidden">
+      <input type="text" id="regUsername" placeholder="Choose a username">
+      <input type="password" id="regPassword" placeholder="Choose a password">
+      <input type="password" id="regPassword2" placeholder="Confirm password">
+      <p class="error" id="regError"></p>
+      <p class="success" id="regSuccess">Account created! You can now log in.</p>
+      <p class="loading" id="regLoading">Creating account...</p>
+      <button id="registerBtn">Create Account</button>
+      <button class="secondary" id="showLoginBtn">Back to Log In</button>
+    </div>
+  </div>
+
+  <div class="container hidden" id="appScreen">
+    <h1>Request Money</h1>
+    <p class="subtitle">After the game</p>
+    
+    <div class="user-info">
+      Logged in as <strong id="currentUser"></strong>
+    </div>
+
+    <div class="balance-card">
+      <p class="label">Their current balance</p>
+      <p class="balance" id="currentBalance">$250.00</p>
+    </div>
+
+    <div class="slider-section">
+      <label for="amountSlider">How much do you want?</label>
+      <div class="amount-display">
+        $<span id="requestedAmount">0</span>
+      </div>
+      <input type="range" id="amountSlider" min="0" max="250" value="0" step="5">
+      <div class="slider-labels">
+        <span>$0</span>
+        <span>$250</span>
+      </div>
+    </div>
+
+    <div class="preview-card">
+      <p class="label">Their balance after transfer</p>
+      <p class="balance preview" id="newBalance">$250.00</p>
+    </div>
+
+    <button id="requestBtn" disabled>Request Money</button>
+    <button class="logout" id="logoutBtn">Log out</button>
+  </div>
+
+  <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwuRHd7RWa1ch4mC7ZDC3sI2vp4k6iqRi3jB8mqrXFO5z0SOR8mqDhjQQ00P14Mxcga/exec";
+
+    const authScreen = document.getElementById('authScreen');
+    const appScreen = document.getElementById('appScreen');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+
+    document.getElementById('showRegisterBtn').onclick = () => {
+      loginForm.classList.add('hidden');
+      registerForm.classList.remove('hidden');
+      document.getElementById('authSubtitle').textContent = "Create a new account";
+      hideMessages();
+    };
+
+    document.getElementById('showLoginBtn').onclick = () => {
+      registerForm.classList.add('hidden');
+      loginForm.classList.remove('hidden');
+      document.getElementById('authSubtitle').textContent = "Log in to your account";
+      hideMessages();
+    };
+
+    function hideMessages() {
+      document.querySelectorAll('.error, .success, .loading').forEach(el => el.style.display = 'none');
+    }
+
+    function showError(id, msg) {
+      const el = document.getElementById(id);
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
+    // REGISTER
+    document.getElementById('registerBtn').onclick = async () => {
+      const username = document.getElementById('regUsername').value.trim().toLowerCase();
+      const password = document.getElementById('regPassword').value;
+      const password2 = document.getElementById('regPassword2').value;
+
+      hideMessages();
+
+      if (!username || !password) return showError('regError', "Please fill in all fields");
+      if (password !== password2) return showError('regError', "Passwords do not match");
+      if (password.length < 3) return showError('regError', "Password too short");
+
+      document.getElementById('regLoading').style.display = 'block';
+
+      try {
+        const url = `${SCRIPT_URL}?action=register&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        document.getElementById('regLoading').style.display = 'none';
+
+        if (data.success) {
+          document.getElementById('regSuccess').style.display = 'block';
+          document.getElementById('regUsername').value = '';
+          document.getElementById('regPassword').value = '';
+          document.getElementById('regPassword2').value = '';
+        } else {
+          showError('regError', data.message);
+        }
+      } catch (err) {
+        document.getElementById('regLoading').style.display = 'none';
+        showError('regError', "Connection error");
+      }
+    };
+
+    // LOGIN
+    document.getElementById('loginBtn').onclick = async () => {
+      const username = document.getElementById('loginUsername').value.trim().toLowerCase();
+      const password = document.getElementById('loginPassword').value;
+
+      hideMessages();
+
+      if (!username || !password) return showError('loginError', "Please fill in all fields");
+
+      document.getElementById('loginLoading').style.display = 'block';
+
+      try {
+        const url = `${SCRIPT_URL}?action=login&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        document.getElementById('loginLoading').style.display = 'none';
+
+        if (data.success) {
+          localStorage.setItem('loggedInUser', username);
+          showApp(username);
+        } else {
+          showError('loginError', data.message);
+        }
+      } catch (err) {
+        document.getElementById('loginLoading').style.display = 'none';
+        showError('loginError', "Connection error");
+      }
+    };
+
+    // LOGOUT + SHOW APP
+    document.getElementById('logoutBtn').onclick = () => {
+      localStorage.removeItem('loggedInUser');
+      appScreen.classList.add('hidden');
+      authScreen.classList.remove('hidden');
+      loginForm.classList.remove('hidden');
+      registerForm.classList.add('hidden');
+      hideMessages();
+    };
+
+    function showApp(username) {
+      authScreen.classList.add('hidden');
+      appScreen.classList.remove('hidden');
+      document.getElementById('currentUser').textContent = username;
+      updateUI();
+    }
+
+    const savedUser = localStorage.getItem('loggedInUser');
+    if (savedUser) showApp(savedUser);
+
+    // SLIDER
+    const slider = document.getElementById('amountSlider');
+    const requestedAmountEl = document.getElementById('requestedAmount');
+    const newBalanceEl = document.getElementById('newBalance');
+    const requestBtn = document.getElementById('requestBtn');
+    const startingBalance = 250;
+
+    function updateUI() {
+      const amount = parseInt(slider.value);
+      requestedAmountEl.textContent = amount;
+      newBalanceEl.textContent = `$${(startingBalance - amount).toFixed(2)}`;
+      requestBtn.disabled = amount === 0;
+    }
+
+    slider.addEventListener('input', updateUI);
+
+    requestBtn.addEventListener('click', () => {
+      const amount = slider.value;
+      const user = localStorage.getItem('loggedInUser');
+      alert(`${user} requested $${amount}!`);
+    });
+  </script>
+</body>
+</html>
