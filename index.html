@@ -168,7 +168,7 @@
 
   <script>
     // Your Web App URL
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby8iAWMl6OrAipe-sslhIWu8CVebZsVu2luZ_iuuMJ2rxewdoloqWF3y37-7GSyWXql/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzIse1jBKv-5k-OMlWMLPzJynb-KdTyDB-x4DG4xcxlsF3xoOSluGUFQJLbRs0SzIdv/exec";
 
     const authScreen = document.getElementById('authScreen');
     const appScreen = document.getElementById('appScreen');
@@ -177,7 +177,7 @@
       document.querySelectorAll('.error, .loading, .success').forEach(el => el.style.display = 'none');
     }
 
-    // ENTER
+    // ENTER / LOGIN
     document.getElementById('enterBtn').onclick = async () => {
       const username = document.getElementById('username').value.trim().toLowerCase();
       const password = document.getElementById('password').value;
@@ -194,7 +194,9 @@
 
       try {
         const url = `${SCRIPT_URL}?action=enter&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
-        const res = await fetch(url);
+        
+        // redirect: "follow" handles Google Apps Script 302 redirects
+        const res = await fetch(url, { method: "GET", redirect: "follow" });
         const data = await res.json();
 
         document.getElementById('loadingMsg').style.display = 'none';
@@ -208,7 +210,7 @@
         }
       } catch (err) {
         document.getElementById('loadingMsg').style.display = 'none';
-        document.getElementById('errorMsg').textContent = "Connection error";
+        document.getElementById('errorMsg').textContent = "Connection error. Make sure your Apps Script is deployed to 'Anyone'.";
         document.getElementById('errorMsg').style.display = 'block';
       }
     };
@@ -223,7 +225,9 @@
 
       try {
         const url = `${SCRIPT_URL}?action=request&username=${encodeURIComponent(user)}&amount=${encodeURIComponent(amount)}`;
-        const res = await fetch(url);
+        
+        // redirect: "follow" handles Google Apps Script 302 redirects
+        const res = await fetch(url, { method: "GET", redirect: "follow" });
         const data = await res.json();
 
         document.getElementById('requestLoading').style.display = 'none';
