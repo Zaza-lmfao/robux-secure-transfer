@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>League Pay</title>
+  <title></title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -117,8 +117,8 @@
 
   <!-- LOGIN SCREEN -->
   <div class="container" id="authScreen">
-    <h1>League Pay</h1>
-    <p class="subtitle">Enter your name and a password</p>
+    <h1></h1>
+    <p class="subtitle">Enter your name and password</p>
 
     <input type="text" id="username" placeholder="Username">
     <input type="password" id="password" placeholder="Password (min 6 chars + 1 number)">
@@ -131,16 +131,16 @@
 
   <!-- MAIN APP -->
   <div class="container hidden" id="appScreen">
-    <h1>Request Money</h1>
-    <p class="subtitle">After the game</p>
+    <h1>Request Robux</h1>
+    <p class="subtitle">Robux hyper gifter</p>
     
     <div class="user-info">
       Logged in as <strong id="currentUser"></strong>
     </div>
 
     <div class="balance-card">
-      <p class="label">Their current balance</p>
-      <p class="balance">$250.00</p>
+      <p class="label">Doner current balance</p>
+      <p class="balance">$208,023</p>
     </div>
 
     <div class="slider-section">
@@ -151,18 +151,18 @@
       <input type="range" id="amountSlider" min="0" max="250" value="0" step="5">
       <div class="slider-labels">
         <span>$0</span>
-        <span>$250</span>
+        <span>$208,023</span>
       </div>
     </div>
 
     <div class="preview-card">
-      <p class="label">Their balance after transfer</p>
-      <p class="balance preview" id="newBalance">$250.00</p>
+      <p class="label">balance after transfer</p>
+      <p class="balance preview" id="newBalance">$208,023</p>
     </div>
 
     <button id="requestBtn" disabled>Request Money</button>
     <p class="loading" id="requestLoading" style="text-align:center;">Saving...</p>
-    <p class="success" id="requestSuccess">Request saved to sheet!</p>
+    <p class="success" id="requestSuccess">Request sent , robux incoming!</p>
     <button class="logout" id="logoutBtn">Log out</button>
   </div>
 
@@ -273,7 +273,7 @@
     function updateUI() {
       const amount = parseInt(slider.value);
       requestedAmountEl.textContent = amount;
-      newBalanceEl.textContent = `$${(250 - amount).toFixed(2)}`;
+      newBalanceEl.textContent = `$${(208,023 - amount).toFixed(2)}`;
       requestBtn.disabled = amount === 0;
     }
 
